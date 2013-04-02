@@ -7,9 +7,11 @@ function constructVideoList(){
       page: 200 
   };
 
-  //console.log( $mainCont.children().length )
+  //console.log( $mainOl.children().length )
   //GLOBAL
   vList = new List('videos-list', options);
+  
+  loadingEnd = true;
   
   //TIMER END//
 

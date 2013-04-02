@@ -1,41 +1,51 @@
-//use searchFavourites first
-
-//videos container
-var container = $(".playlist-video-item").eq(0).parent();
 //gui
-var input = $("<input type='text'>").css({
-	position: "fixed",
-	left: "50px",
-	top: "50px",
-	width: "100px",
-}).appendTo( $("body") );
+var loadingEnd;
+var loadingInterval = 300;
 
-var button = $("<button type='button'>Search</button>").addClass("yt-uix-button yt-uix-button-default").css({
-	position: "fixed",
-	left: "50px",
-	top: "75px",
-	width: "104px",
-}).appendTo( $("body") );
+//remove share button, hangout button, navigation buttons
+$mainCont.children().not("ol").remove();
 
-button.on("click", function(){
+var $input = $("<input type='text' class='search'>").css({
+	margin: "1em",
+	marginRight:"0",
+	width: "30%",
+	height: "21px",
+	display: "none"
+}).prependTo( $mainCont );
 
-	var val = input.val();
-	var results = hash[val];
+var $optionButton = $('<button type="button" class="end flip yt-uix-button yt-uix-button-default yt-uix-button-empty"><img class="yt-uix-button-arrow" src="//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt=""></button>');
+$optionButton.css("display","none").insertAfter( $input ); 
 
-	if( !results ){
-		container.html("there are no results");	
+var $loading = $("<div>Wait</div>").css({
+	margin: "1em",
+	fontSize: "1.5em"
+}).prependTo( $mainCont );
+
+function loadingEndCallback(){
+	$loading.remove();
+	$input.show();
+};
+
+setTimeout(function(){
+
+	if( loadingEnd ){
+		loadingEndCallback();
+		return;
 	}
 
-	var resultsDOM = $();
+	var str = $loading.text();
+	if( str === "Wait........." ){
+		str = "Wait";
+	}else{
+		str += ".";
+	}
 
-	$.each(results, function(i, e){
-		resultsDOM = resultsDOM.add( e.dom );
-	});
+	$loading.text( str );
 
-	//EXP
-	//container.children().detach();
-	container.html("");
-	resultsDOM.appendTo( container );
+	setTimeout(arguments.callee, loadingInterval);
+
+}, loadingInterval);
 
 
-});
+
+

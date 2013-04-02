@@ -2,12 +2,11 @@
 function searchFav(){ //START searchFav
 
 //TIMER START//
-//var start = new Date().getTime();
 
 //GLOBAL List.js object 
 window.vList;
 
-//adres, num of videos
+//COLLECT DATA FROM HREF START//
 var numOfVids = parseInt( $(".stat-value").eq(0).text().replace(",", ""), 10 );
 var numOfVidsOnOnePage = 100;
 var numOfPages = Math.ceil( numOfVids / numOfVidsOnOnePage ); 
@@ -30,7 +29,62 @@ if( regResult ){
   playlistName = playlistName.replace(regResult, "");
   pageNotToDownload = parseInt( regResult[0].slice(6), 10);
 }
+//COLLECT DATA FROM HREF END//
 
+//GUI START//
+var $cont = $("<ul>");
+var $mainCont = $(".ypc-list-container").attr("id", "videos-list")
+var $mainOl = $mainCont.find("ol").addClass("list");
+
+var loadingEnd = false;
+var loadingInterval = 300;
+
+//remove share button, hangout button, navigation buttons
+$mainCont.children().not("ol").remove();
+
+var $input = $("<input type='text' class='search'>").css({
+  margin: "1em",
+  marginRight:"0",
+  width: "30%",
+  height: "21px",
+  display: "none"
+}).prependTo( $mainCont );
+
+var $optionButton = $('<button type="button" class="end flip yt-uix-button yt-uix-button-default yt-uix-button-empty"><img class="yt-uix-button-arrow" src="//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt=""></button>');
+$optionButton.css("display","none").insertAfter( $input ); 
+
+var $loading = $("<div>Wait</div>").css({
+  margin: "1em",
+  fontSize: "1.5em"
+}).prependTo( $mainCont );
+
+function loadingEndCallback(){
+  $loading.remove();
+  $input.show();
+};
+
+setTimeout(function(){
+
+  if( loadingEnd ){
+    loadingEndCallback();
+    return;
+  }
+
+  var str = $loading.text();
+  if( str === "Wait........." ){
+    str = "Wait";
+  }else{
+    str += ".";
+  }
+
+  $loading.text( str );
+
+  setTimeout(arguments.callee, loadingInterval);
+
+}, loadingInterval);
+//GUI END//
+
+//DOWNLOAD OTHER VIDS START//
 //prepare links
 var links = [];
 var link = pagePreffix + playlistName + pageSuffix;
@@ -43,10 +97,6 @@ for(var i = 1; i <= numOfPages; i++){
   links.push( link + i );
 }
 
-//downlad other videos
-var $cont = $("<ul>");
-var $mainCont = $(".ypc-list-container").attr("id", "videos-list").find("ol").addClass("list");
-
 var callbackCounter = 0;
 
 $.each(links, function(i, link){
@@ -57,7 +107,7 @@ $.each(links, function(i, link){
 
     var $lis = $(data).find(".ypc-list-container").find("li");
     li = $lis;
-    $mainCont.append( $lis );
+    $mainOl.append( $lis );
 
     console.log("callback nr " + (i + 1));
 
@@ -67,5 +117,6 @@ $.each(links, function(i, link){
     }
   });
 });
+//DOWNLOAD OTHER VIDS END//
 
 }//END searchFav
