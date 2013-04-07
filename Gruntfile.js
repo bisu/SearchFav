@@ -3,26 +3,32 @@ module.exports = function(grunt) {
   // Project configuration.
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
-    concat: {
-      options: {
-        //this is shit that is addedd at the beginning of the file
-        banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %> */\n'
-      },
-      dist: {
-        src: ['src/getjQuery.js', 'src/searchFavDOM.js', 'src/videoList.js'],
-        dest: './searchFavourites.js'
-      }
-    },
     build:{
-      all:{
+      //this a target
+      standard:{
         dest: './searchFavourites.js',
         src:['src/getjQuery.js', 'src/searchFavDOM.js', ['src/videoList.js', '}//END searchFav'] ],
         banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("dd-mm-yyyy") %> */'
       }
-    }
+    },
+    uglify: {
+      all: {
+        files: {
+          './searchFavourites.min.js': ['./searchFavourites.js']
+        }
+      }
+    },
+    jshint: {
+      standard:{
+        src: [ 'src/searchFavGUI.js' ],
+        reporter: "./out.js",
+        options: {
+          jshintrc: "./.jshintrc"
+        },
+        force: true
+      } 
+    }   
   });
-
-  grunt.loadNpmTasks('grunt-contrib-concat');
 
   grunt.registerMultiTask("build", "builds final file", function(){
 
@@ -40,8 +46,8 @@ module.exports = function(grunt) {
     }
 
     //replace vars
-    var timerStart = ["//TIMER START//", "var start = new Date().getTime();"];
-    var timerEnd = ["//TIMER END//", "var end = new Date().getTime();\n var time = end - start;\n console.log('It took ' + (time / 1000) + ' sec');"];
+    //var timerStart = ["//TIMER START//", "var start = new Date().getTime();"];
+    //var timerEnd = ["//TIMER END//", "var end = new Date().getTime();\n var time = end - start;\n console.log('It took ' + (time / 1000) + ' sec');"];
 
     src.forEach(function(filepath){
 
@@ -61,7 +67,7 @@ module.exports = function(grunt) {
     });
     
     //replacements
-    build = build.replace( timerStart[0], timerStart[1] ).replace( timerEnd[0], timerEnd[1] );
+    //build = build.replace( timerStart[0], timerStart[1] ).replace( timerEnd[0], timerEnd[1] );
 
     //FIX maybe trim build
 
@@ -77,5 +83,31 @@ module.exports = function(grunt) {
     grunt.log.writeln( "File " + dest.slice(2) + " was created successfully" );
   
   });
+
+  grunt.registerTask("timer", "inject timer", function( filepath, dest ){
+
+    var file;
+
+    var filepath = filepath || "./searchFavourites.js";
+    var dest = dest || "./searchFavourites.js";
+
+    file = grunt.file.read( filepath );
+
+    //replace vars
+    var timerStart = ["//TIMER START//", "var start = new Date().getTime();"];
+    var timerEnd = ["//TIMER END//", "var end = new Date().getTime();\n var time = end - start;\n console.log('It took ' + (time / 1000) + ' sec');"];
+
+    //replacements
+    file = file.replace( timerStart[0], timerStart[1] ).replace( timerEnd[0], timerEnd[1] );
+
+    grunt.file.write(dest, file);
+
+  });
+
+  grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-jshint');
+
+  grunt.registerTask("default", ["build", "timer", "uglify"]);
+  grunt.registerTask("check", ["jshint"]);
 
 };

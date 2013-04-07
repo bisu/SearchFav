@@ -6,34 +6,37 @@ function searchFav(){ //START searchFav
 //GLOBAL List.js object 
 window.vList;
 
-//COLLECT DATA FROM HREF START//
+//COLLECT DATA FROM PAGE AND HREF START//
 var numOfVids = parseInt( $(".stat-value").eq(0).text().replace(",", ""), 10 );
 var numOfVidsOnOnePage = 100;
-var numOfPages = Math.ceil( numOfVids / numOfVidsOnOnePage ); 
+var numOfPages = Math.ceil( numOfVids / numOfVidsOnOnePage );
 
 var pageNotToDownload = 1; //default is 1
 
-var pageSuffix = "&page="; 
-var pagePreffix = "http://www.youtube.com/playlist?list="; 
+var pageSuffix = "&page=";
+var pagePreffix = "http://www.youtube.com/playlist?list=";
 
-var playlistName = window.location.href;
-var index = playlistName.indexOf("?list=") + 6;
-playlistName = playlistName.slice( index );
-
-//cut out $page=....
-var cut = /&page=.*/g;
-cut.lastIndex = 0;
-var regResult = cut.exec( playlistName );
-
-if( regResult ){
-  playlistName = playlistName.replace(regResult, "");
-  pageNotToDownload = parseInt( regResult[0].slice(6), 10);
+function getParameterByName(name){
+  name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+  var regexS = "[\\?&]" + name + "=([^&#]*)";
+  var regex = new RegExp(regexS);
+  var results = regex.exec(window.location.search);
+  if(results == null)
+    return "";
+  else
+    return decodeURIComponent(results[1].replace(/\+/g, " "));
 }
-//COLLECT DATA FROM HREF END//
+
+var playlistName = getParameterByName("list");
+var page = getParameterByName("page");
+
+if( page ){
+  pageNotToDownload = parseInt(page, 10);
+}
+//COLLECT DATA FROM PAGE AND HREF END//
 
 //GUI START//
-var $cont = $("<ul>");
-var $mainCont = $(".ypc-list-container").attr("id", "videos-list")
+var $mainCont = $(".ypc-list-container").attr("id", "videos-list");
 var $mainOl = $mainCont.find("ol").addClass("list");
 
 var loadingEnd = false;
@@ -51,7 +54,7 @@ var $input = $("<input type='text' class='search'>").css({
 }).prependTo( $mainCont );
 
 var $optionButton = $('<button type="button" class="end flip yt-uix-button yt-uix-button-default yt-uix-button-empty"><img class="yt-uix-button-arrow" src="//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt=""></button>');
-$optionButton.css("display","none").insertAfter( $input ); 
+$optionButton.css("display","none").insertAfter( $input );
 
 var $loading = $("<div>Wait</div>").css({
   margin: "1em",
@@ -61,7 +64,7 @@ var $loading = $("<div>Wait</div>").css({
 function loadingEndCallback(){
   $loading.remove();
   $input.show();
-};
+}
 
 setTimeout(function(){
 
@@ -99,24 +102,37 @@ for(var i = 1; i <= numOfPages; i++){
 
 var callbackCounter = 0;
 
-$.each(links, function(i, link){
+if( !links.length ){
 
-  $.ajax({
-    url: link 
-  }).done(function(data) {
+  constructVideoList();
+}else{
 
-    var $lis = $(data).find(".ypc-list-container").find("li");
-    li = $lis;
-    $mainOl.append( $lis );
+  $.each(links, function(i, link){
 
-    console.log("callback nr " + (i + 1));
+    $.ajax({
+      url: link
+    }).done(function(data) {
 
-    callbackCounter += 1;
-    if( callbackCounter == (numOfPages - 1) ){
-      constructVideoList();
-    }
+      var $lis = $(data).find(".ypc-list-container").find("li");
+
+      //extract video thumnail and change src to thumbnail
+      $lis.each(function(i, li){
+        var $img = $(li).find(".yt-thumb-clip-inner").find("img");
+        var dataThumb = $img.attr("data-thumb");  
+        $img.attr("src", dataThumb);
+      }); 
+
+      $mainOl.append( $lis );
+
+      //console.log("callback nr " + (i + 1));
+
+      callbackCounter += 1;
+      if( callbackCounter == (numOfPages - 1) ){
+        constructVideoList();
+      }
+    });
   });
-});
+}
 //DOWNLOAD OTHER VIDS END//
 
 }//END searchFav

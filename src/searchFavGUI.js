@@ -1,6 +1,6 @@
 //gui
 var loadingEnd;
-var loadingInterval = 300;
+var loadingInterval = 200;
 
 //remove share button, hangout button, navigation buttons
 $mainCont.children().not("ol").remove();
@@ -14,7 +14,7 @@ var $input = $("<input type='text' class='search'>").css({
 }).prependTo( $mainCont );
 
 var $optionButton = $('<button type="button" class="end flip yt-uix-button yt-uix-button-default yt-uix-button-empty"><img class="yt-uix-button-arrow" src="//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt=""></button>');
-$optionButton.css("display","none").insertAfter( $input ); 
+$optionButton.css("display","none").insertAfter( $input );
 
 var $loading = $("<div>Wait</div>").css({
 	margin: "1em",
@@ -24,7 +24,7 @@ var $loading = $("<div>Wait</div>").css({
 function loadingEndCallback(){
 	$loading.remove();
 	$input.show();
-};
+}
 
 setTimeout(function(){
 
