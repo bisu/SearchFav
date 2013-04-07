@@ -45,10 +45,6 @@ module.exports = function(grunt) {
       build += banner + "\n";
     }
 
-    //replace vars
-    //var timerStart = ["//TIMER START//", "var start = new Date().getTime();"];
-    //var timerEnd = ["//TIMER END//", "var end = new Date().getTime();\n var time = end - start;\n console.log('It took ' + (time / 1000) + ' sec');"];
-
     src.forEach(function(filepath){
 
       var file;
@@ -65,9 +61,6 @@ module.exports = function(grunt) {
       }
 
     });
-    
-    //replacements
-    //build = build.replace( timerStart[0], timerStart[1] ).replace( timerEnd[0], timerEnd[1] );
 
     //FIX maybe trim build
 
