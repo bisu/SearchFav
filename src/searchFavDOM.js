@@ -110,10 +110,11 @@ if( !links.length ){
   $.each(links, function(i, link){
 
     $.ajax({
-      url: link
+      url: link,
+      dataType:"html"
     }).done(function(data) {
 
-      var $lis = $(data).find(".ypc-list-container").find("li");
+      var $lis = $(data.trim()).find(".ypc-list-container").find("li");
 
       //extract video thumnail and change src to thumbnail
       $lis.each(function(i, li){
